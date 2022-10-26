@@ -2,6 +2,7 @@
   "name": "mtgcarddb",
   "version": "1.0.0",
   "author": "mic666_88",
+  "type": "module",
   "license": "Apache-2.0",
   "main": "cardsManager.js",
   "repository": {

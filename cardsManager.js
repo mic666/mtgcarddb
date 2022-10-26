@@ -1,12 +1,10 @@
-const _ = require('lodash');
-const express = require('express');
-const MtgCard = require("./MtgCard");
+import _ from "lodash";
+import express from "express";
+import MtgCard from "./MtgCard.js";
+import * as mtgCardDB from "./mtgCardDB.js";
+
 const app = express();
-let cards = [];
-let card = new MtgCard('vow-10', 4);
-let card2 = new MtgCard('mh2-103', 1);
-cards.push(card)
-cards.push(card2)
+let cards = mtgCardDB.loadAllCards();
 
 function retrieveCardForId(requestedCardId) {
     let requestedCard = null;
@@ -45,6 +43,7 @@ app.post('/cards', (req, res) => {
     if (retrieveCardForId(req.query.id) === null) {
         let cardToAdd = new MtgCard(req.query.id, req.query.numberOwned);
         cards.push(cardToAdd);
+        mtgCardDB.addCard(cardToAdd);
         res.send("carte bien ajoutée : " + cardToAdd);
     } else {
         res.send("Carte déja présente pas possible d'ajouter")
