@@ -55,3 +55,21 @@ export function addCard(card) {
     return cards;
 }
 
+export function deleteCard(id) {
+    let mtgCardDb = initDB();
+    let cards = [];
+    mtgCardDb.run('DELETE FROM mtgCards WHERE ID is ?', id);
+
+    closeDB(mtgCardDb);
+    return cards;
+}
+
+export function updateCard(id, numberOwned) {
+    let mtgCardDb = initDB();
+    let cards = [];
+    mtgCardDb.run('UPDATE mtgCards SET numberOwned=? WHERE ID is ?', numberOwned, id);
+
+    closeDB(mtgCardDb);
+    return cards;
+}
+
