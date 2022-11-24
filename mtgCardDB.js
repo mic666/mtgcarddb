@@ -11,7 +11,7 @@ function initDB() {
             return console.error(err.message);
         }
     });
-    let createTableSQL = 'CREATE TABLE IF NOT EXISTS mtgCards ( id TEXT PRIMARY KEY , numberOwned INTEGER , imgURL VARCHAR)';
+    let createTableSQL = 'CREATE TABLE IF NOT EXISTS mtgCards ( id TEXT PRIMARY KEY, name VARCHAR , numberOwned INTEGER , imgURL VARCHAR, manaCost VARCHAR , cmc NUMERIC , colorIdentity VARCHAR, layout VARCHAR)';
     mtgCardDb.exec(createTableSQL);
     return mtgCardDb;
 }
@@ -35,7 +35,7 @@ export function loadAllCards() {
             throw err;
         }
         rows.forEach((row) => {
-            let mtgCard = new MtgCard(row.id, row.numberOwned,row.imgURL);
+            let mtgCard = new MtgCard(row.id,row.name,row.numberOwned, row.imgURL,row.manaCost,row.cmc,row.colorIdentity,row.layout);
             cards.push(mtgCard);
         });
     });
@@ -46,7 +46,8 @@ export function loadAllCards() {
 export function addCard(card) {
     let mtgCardDb = initDB();
     let cards = [];
-    mtgCardDb.run('INSERT INTO mtgCards(id,numberOwned,imgURL) values(?,?,?)', card.id, card.numberOwned,card.imgUrl);
+    mtgCardDb.run('INSERT INTO mtgCards(id,name,numberOwned,imgURL,mana_cost,cmc,color_identity,layout) values(?,?,?,?,?,?,?,?)',
+        card.id,card.name, card.numberOwned, card.imgUrl,card.manaCost,card.cmc,card.colorIdentity,card.layout);
 
     closeDB(mtgCardDb);
     return cards;
@@ -61,10 +62,10 @@ export function deleteCard(id) {
     return cards;
 }
 
-export function updateCard(id, numberOwned, imgUrl) {
+export function updateCard(id, numberOwned) {
     let mtgCardDb = initDB();
     let cards = [];
-    mtgCardDb.run('UPDATE mtgCards SET numberOwned=?,imgURL=? WHERE ID is ?', numberOwned, imgUrl, id);
+    mtgCardDb.run('UPDATE mtgCards SET numberOwned=?,imgURL=? WHERE ID is ?', numberOwned, id);
 
     closeDB(mtgCardDb);
     return cards;
