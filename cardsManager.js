@@ -1,7 +1,7 @@
 import _ from "lodash";
 import express from "express";
-import MtgCard from "./MtgCard.js";
-import * as mtgCardDB from "./mtgCardDB.js";
+import MtgCard from "./card/MtgCard.js";
+import * as mtgCardDB from "./card/mtgCardDB.js";
 
 const app = express();
 let cards = mtgCardDB.loadAllCards();
@@ -11,7 +11,7 @@ let htmlHeader = "<!DOCTYPE html>\n" +
     "<head>\n" +
     "<meta charset=\"utf-8\">\n" +
     "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">" +
-    "<title>Mtg Card List</title>"+
+    "<title>Mtg Card List</title>" +
     "<!-- CSS only -->\n" +
     "<link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css\" rel=\"stylesheet\" " +
     "integrity=\"sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65\" crossorigin=\"anonymous\">" +
@@ -69,7 +69,7 @@ function getCardHtml(card) {
 
 app.get('/cards', (req, res) => {
     try {
-        res.send("Liste des cartes : <br/>" + cards)
+        res.send("Card List : <br/>" + cards)
     } catch (e) {
         res.status(500)
         res.type('txt').send("Server error occurs during the processing of the request")
@@ -82,19 +82,23 @@ function getCardsHtmlTableHeaders(sortedCards) {
         "<th>Mana cost</th><th>Color identity</th><th>CMC</th><th>Layout</th><th>IMG</th></tr></thead><tbody class=\"table-group-divider\">";
     for (let i = 0; i < sortedCards.length; i++) {
         let cardHtmlRow = "<tr>";
-        cardHtmlRow += "<td>" + cards[i].id + "</td>";
-        cardHtmlRow += "<td>" + cards[i].name + "</td>";
-        cardHtmlRow += "<td>" + cards[i].numberOwned + "</td>";
-        cardHtmlRow += "<td>" + cards[i].manaCost + "</td>";
-        cardHtmlRow += "<td>" + cards[i].colorIdentity + "</td>";
-        cardHtmlRow += "<td>" + cards[i].cmc + "</td>";
-        cardHtmlRow += "<td>" + cards[i].layout + "</td>";
+        cardHtmlRow += "<td>" + dashIfValueNotDefined(cards[i].id) + "</td>";
+        cardHtmlRow += "<td>" + dashIfValueNotDefined(cards[i].name) + "</td>";
+        cardHtmlRow += "<td>" + dashIfValueNotDefined(cards[i].numberOwned) + "</td>";
+        cardHtmlRow += "<td>" + dashIfValueNotDefined(cards[i].manaCost) + "</td>";
+        cardHtmlRow += "<td>" + dashIfValueNotDefined(cards[i].colorIdentity) + "</td>";
+        cardHtmlRow += "<td>" + dashIfValueNotDefined(cards[i].cmc) + "</td>";
+        cardHtmlRow += "<td>" + dashIfValueNotDefined(cards[i].layout) + "</td>";
         cardHtmlRow += "<td>" + getCardImgHtml(cards[i]) + "</td>";
         cardHtmlRow += "</tr>";
         tableHtml += cardHtmlRow;
     }
     return tableHtml + "</tbody></table></div>"
 
+}
+
+function dashIfValueNotDefined(value) {
+    return value === undefined || value === null || value === "" ? "-" : value;
 }
 
 app.get('/cards/scryfall', (req, res) => {

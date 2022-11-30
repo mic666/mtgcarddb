@@ -46,7 +46,7 @@ export function loadAllCards() {
 export function addCard(card) {
     let mtgCardDb = initDB();
     let cards = [];
-    mtgCardDb.run('INSERT INTO mtgCards(id,name,numberOwned,imgURL,mana_cost,cmc,color_identity,layout) values(?,?,?,?,?,?,?,?)',
+    mtgCardDb.run('INSERT INTO mtgCards(id,name,numberOwned,imgURL,manaCost,cmc,colorIdentity,layout) values(?,?,?,?,?,?,?,?)',
         card.id,card.name, card.numberOwned, card.imgUrl,card.manaCost,card.cmc,card.colorIdentity,card.layout);
 
     closeDB(mtgCardDb);
