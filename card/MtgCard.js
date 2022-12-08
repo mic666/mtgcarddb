@@ -20,4 +20,15 @@ export default class MtgCard {
             + ' colorIdentity:' + this.colorIdentity
             + ' layout:' + this.layout;
     }
+
+
+}
+export function compareCard(card, cardToCompare) {
+    let splitIdCard = card.id.split('-');
+    let splitIdCardToCompare = cardToCompare.id.split('-');
+    if (splitIdCard[1] === splitIdCardToCompare[1]) {
+        return Number(splitIdCard[0]) - Number(splitIdCardToCompare[0]);
+    } else {
+        return splitIdCard[1].localeCompare(splitIdCardToCompare[1]);
+    }
 }

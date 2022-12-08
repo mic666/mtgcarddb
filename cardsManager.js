@@ -1,6 +1,6 @@
 import _ from "lodash";
 import express from "express";
-import MtgCard from "./card/MtgCard.js";
+import MtgCard, {compareCard} from "./card/MtgCard.js";
 import * as mtgCardDB from "./card/mtgCardDB.js";
 
 const app = express();
@@ -53,7 +53,7 @@ function updateCard(requestedCardId, numberOwned) {
 
 function getCardImgHtml(card) {
     let splitCardId = card.id.split('-');
-    let cardImgHTML = "<a href=\"" + scryfallURL + splitCardId[0] + '/' + splitCardId[1];
+    let cardImgHTML = "<a href=\"" + scryfallURL + splitCardId[1] + '/' + splitCardId[0];
     cardImgHTML += "\" target=\"_blank\" rel=\"noopener noreferrer\">"
     cardImgHTML += "<img src=\"" + card.imgUrl + "?format=image&version=small\" alt='" + card.id + "'>";
     cardImgHTML += "</a>";
@@ -105,7 +105,7 @@ app.get('/cards/scryfall', (req, res) => {
     try {
 
         let html = htmlHeader + "Cards list : <br/>";
-        let sortedCards = cards.sort((a, b) => a.id.localeCompare(b.id));
+        let sortedCards = cards.sort((a, b) => compareCard(a,b));
         html += getCardsHtmlTableHeaders(sortedCards);
         html += "</body>"
         res.send(html)
