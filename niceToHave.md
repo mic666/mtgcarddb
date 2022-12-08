@@ -6,3 +6,5 @@
 - [ ] add a get all known series (one with card i own)
 - [ ] allow get all card of a specific series 
 - [ ] find a way to handle the alternative art cards in a good way 
+- [ ] add a new rest for handling request for specific extension ( can be also handle by the client)
+- [ ] add a new rest for looking for card matching name (maybe should be handle by client)
