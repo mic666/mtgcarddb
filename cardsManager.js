@@ -1,6 +1,6 @@
 import _ from "lodash";
 import express from "express";
-import MtgCard, {compareCard} from "./card/MtgCard.js";
+import MtgCard, {compareCardById, compareCardByName} from "./card/MtgCard.js";
 import * as mtgCardDB from "./card/mtgCardDB.js";
 
 const app = express();
@@ -15,10 +15,20 @@ let htmlHeader = "<!DOCTYPE html>\n" +
     "<!-- CSS only -->\n" +
     "<link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css\" rel=\"stylesheet\" " +
     "integrity=\"sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65\" crossorigin=\"anonymous\">" +
+    "<link rel=\"stylesheet\" type=\"text/css\" href=\"https://cdn.datatables.net/1.13.1/css/jquery.dataTables.css\">" +
     "<!-- JavaScript Bundle with Popper -->\n" +
+    "<script\n" +
+    "  src=\"https://code.jquery.com/jquery-3.6.2.min.js\"\n" +
+    "  integrity=\"sha256-2krYZKh//PcchRtd+H+VyyQoZ/e3EcrkxhM8ycwASPA=\"\n" +
+    "  crossorigin=\"anonymous\"></script>" +
+    "<script\n" +
+    "  src=\"https://code.jquery.com/ui/1.13.2/jquery-ui.min.js\"\n" +
+    "  integrity=\"sha256-lSjKY0/srUM9BE3dPm+c4fBo1dky2v27Gdjm2uoZaL0=\"\n" +
+    "  crossorigin=\"anonymous\"></script>" +
     "<script src=\"https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js\" " +
     "integrity=\"sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4\" " +
     "crossorigin=\"anonymous\"></script>" +
+    "<script type=\"text/javascript\" charset=\"utf8\" src=\"https://cdn.datatables.net/1.13.1/js/jquery.dataTables.js\"></script>" +
     "</head>\n" +
     "<body>";
 
@@ -78,7 +88,7 @@ app.get('/cards', (req, res) => {
 
 function getCardsHtmlTableHeaders(sortedCards) {
     let tableHtml = "<div class=\"table-responsive-md\">" +
-        "<table class=\"table table-striped table-hover align-middle\"><thead class=\"table-dark\"><tr><th>ID</th><th>Name</th><th>Number owned</th>" +
+        "<table id='cardsTable' class=\"display table table-striped table-hover align-middle\"  data-order='[[ 1, \"asc\" ]]'><thead class=\"table-dark\"><tr><th>ID</th><th>Name</th><th>Number owned</th>" +
         "<th>Mana cost</th><th>Color identity</th><th>CMC</th><th>Layout</th><th>IMG</th></tr></thead><tbody class=\"table-group-divider\">";
     for (let i = 0; i < sortedCards.length; i++) {
         let cardHtmlRow = "<tr>";
@@ -105,9 +115,11 @@ app.get('/cards/scryfall', (req, res) => {
     try {
 
         let html = htmlHeader + "Cards list : <br/>";
-        let sortedCards = cards.sort((a, b) => compareCard(a,b));
+        let sortedCards = cards.sort((a, b) => compareCardByName(a,b));
         html += getCardsHtmlTableHeaders(sortedCards);
-        html += "</body>"
+        html += "<script>$(document).ready( function () {\n" +
+            "    $('#cardsTable').DataTable();\n" +
+            "} );</script></body>"
         res.send(html)
     } catch (e) {
         res.status(500)
@@ -149,10 +161,10 @@ app.post('/cards', (req, res) => {
             let cardToAdd = new MtgCard(req.query.id, req.query.name, req.query.numberOwned, req.query.imgUrl,
                 req.query.manaCost, req.query.cmc, req.query.colorIdentity, req.query.layout);
             addCard(cardToAdd);
-            res.send("carte bien ajoutée : " + cardToAdd);
+            res.send("card added with success : " + cardToAdd);
         } else {
-            res.status(304)
-            res.type('txt').send("card added with success")
+            res.status(400 )
+            res.type('txt').send("Cannot add the card it's already present please use the put instead of post")
         }
     } catch (e) {
         res.status(500)
@@ -194,7 +206,7 @@ app.delete('/cards', (req, res) => {
                 mtgCardDB.deleteCard(req.query.id);
                 res.send("Successfully deleted the card :" + req.query.id);
             } else {
-                res.status(304)
+                res.status(400)
                 res.type('txt').send("Card was found but not deleted:" + req.query.id);
             }
         } else {

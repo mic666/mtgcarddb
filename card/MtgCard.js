@@ -23,7 +23,7 @@ export default class MtgCard {
 
 
 }
-export function compareCard(card, cardToCompare) {
+export function compareCardById(card, cardToCompare) {
     let splitIdCard = card.id.split('-');
     let splitIdCardToCompare = cardToCompare.id.split('-');
     if (splitIdCard[1] === splitIdCardToCompare[1]) {
@@ -31,4 +31,8 @@ export function compareCard(card, cardToCompare) {
     } else {
         return splitIdCard[1].localeCompare(splitIdCardToCompare[1]);
     }
+}
+
+export function compareCardByName(card, cardToCompare) {
+   return card.name.localeCompare(cardToCompare)
 }
