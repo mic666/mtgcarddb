@@ -77,29 +77,20 @@ function getCardHtml(card) {
     return cardHTML;
 }
 
-app.get('/cards', (req, res) => {
-    try {
-        res.send("Card List : <br/>" + cards)
-    } catch (e) {
-        res.status(500)
-        res.type('txt').send("Server error occurs during the processing of the request")
-    }
-});
-
 function getCardsHtmlTableHeaders(sortedCards) {
     let tableHtml = "<div class=\"table-responsive-md\">" +
         "<table id='cardsTable' class=\"display table table-striped table-hover align-middle\"  data-order='[[ 1, \"asc\" ]]'><thead class=\"table-dark\"><tr><th>ID</th><th>Name</th><th>Number owned</th>" +
         "<th>Mana cost</th><th>Color identity</th><th>CMC</th><th>Layout</th><th>IMG</th></tr></thead><tbody class=\"table-group-divider\">";
     for (let i = 0; i < sortedCards.length; i++) {
         let cardHtmlRow = "<tr>";
-        cardHtmlRow += "<td>" + dashIfValueNotDefined(cards[i].id) + "</td>";
-        cardHtmlRow += "<td>" + dashIfValueNotDefined(cards[i].name) + "</td>";
-        cardHtmlRow += "<td>" + dashIfValueNotDefined(cards[i].numberOwned) + "</td>";
-        cardHtmlRow += "<td>" + dashIfValueNotDefined(cards[i].manaCost) + "</td>";
-        cardHtmlRow += "<td>" + dashIfValueNotDefined(cards[i].colorIdentity) + "</td>";
-        cardHtmlRow += "<td>" + dashIfValueNotDefined(cards[i].cmc) + "</td>";
-        cardHtmlRow += "<td>" + dashIfValueNotDefined(cards[i].layout) + "</td>";
-        cardHtmlRow += "<td>" + getCardImgHtml(cards[i]) + "</td>";
+        cardHtmlRow += "<td>" + dashIfValueNotDefined(sortedCards[i].id) + "</td>";
+        cardHtmlRow += "<td>" + dashIfValueNotDefined(sortedCards[i].name) + "</td>";
+        cardHtmlRow += "<td>" + dashIfValueNotDefined(sortedCards[i].numberOwned) + "</td>";
+        cardHtmlRow += "<td>" + dashIfValueNotDefined(sortedCards[i].manaCost) + "</td>";
+        cardHtmlRow += "<td>" + dashIfValueNotDefined(sortedCards[i].colorIdentity) + "</td>";
+        cardHtmlRow += "<td>" + dashIfValueNotDefined(sortedCards[i].cmc) + "</td>";
+        cardHtmlRow += "<td>" + dashIfValueNotDefined(sortedCards[i].layout) + "</td>";
+        cardHtmlRow += "<td>" + getCardImgHtml(sortedCards[i]) + "</td>";
         cardHtmlRow += "</tr>";
         tableHtml += cardHtmlRow;
     }
@@ -111,11 +102,32 @@ function dashIfValueNotDefined(value) {
     return value === undefined || value === null || value === "" ? "-" : value;
 }
 
-app.get('/cards/scryfall', (req, res) => {
+app.get('/cards', (req, res) => {
     try {
 
         let html = htmlHeader + "Cards list : <br/>";
         let sortedCards = cards.sort((a, b) => compareCardByName(a,b));
+        html += getCardsHtmlTableHeaders(sortedCards);
+        html += "<script>$(document).ready( function () {\n" +
+            "    $('#cardsTable').DataTable();\n" +
+            "} );</script></body>"
+        res.send(html)
+    } catch (e) {
+        res.status(500)
+        res.type('txt').send("Server error occurs during the processing of the request")
+    }
+});
+
+app.get('/cards/:set', (req, res) => {
+    try {
+        if (req.params.set === undefined) {
+            res.status(400)
+            res.type('txt').send("Param set is missing");
+            return;
+        }
+        let html = htmlHeader + "Cards list : <br/>";
+        let filteredCards = cards.filter(card => card.id.includes(req.params.set))
+        let sortedCards = filteredCards.sort((a, b) => compareCardByName(a,b));
         html += getCardsHtmlTableHeaders(sortedCards);
         html += "<script>$(document).ready( function () {\n" +
             "    $('#cardsTable').DataTable();\n" +
