@@ -1,6 +1,6 @@
 import _ from "lodash";
 import express from "express";
-import MtgCard, {compareCardById, compareCardByName} from "./card/MtgCard.js";
+import MtgCard, { compareCardById, compareCardByName } from "./card/MtgCard.js";
 import * as mtgCardDB from "./card/mtgCardDB.js";
 
 const app = express();
@@ -58,6 +58,15 @@ function updateCard(requestedCardId, numberOwned) {
         }
     }
     return requestedCard;
+}
+
+function getMtgSets() {
+    let mtgSet = new Set()
+    for (let i = 0; i < cards.length; i++) {
+        let cardId = cards[i].id;
+        mtgSet.add(cardId.split("-")[1]);
+    }
+    return mtgSet;
 }
 
 
@@ -118,6 +127,21 @@ app.get('/cards', (req, res) => {
     }
 });
 
+app.get('/sets', (req, res) => {
+    try {
+
+        let html = htmlHeader + "List of Mtg set with owned cards : <br/>";
+        let mtgSets = getMtgSets();
+        mtgSets.forEach(set => html += " - " + set + "<br/>")
+        html += "</body>"
+        res.send(html)
+    } catch (e) {
+        res.status(500)
+        res.type('txt').send("Server error occurs during the processing of the request")
+    }
+});
+
+
 app.get('/cards/:set', (req, res) => {
     try {
         if (req.params.set === undefined) {
@@ -127,7 +151,7 @@ app.get('/cards/:set', (req, res) => {
         }
         let html = htmlHeader + "Cards list : <br/>";
         let filteredCards = cards.filter(card => card.id.includes(req.params.set))
-        let sortedCards = filteredCards.sort((a, b) => compareCardByName(a,b));
+        let sortedCards = filteredCards.sort((a, b) => compareCardByName(a, b));
         html += getCardsHtmlTableHeaders(sortedCards);
         html += "<script>$(document).ready( function () {\n" +
             "    $('#cardsTable').DataTable();\n" +
@@ -175,7 +199,7 @@ app.post('/card', (req, res) => {
             addCard(cardToAdd);
             res.send("card added with success : " + cardToAdd);
         } else {
-            res.status(400 )
+            res.status(400)
             res.type('txt').send("Cannot add the card it's already present please use the put instead of post")
         }
     } catch (e) {
