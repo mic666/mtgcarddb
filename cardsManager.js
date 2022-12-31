@@ -139,7 +139,7 @@ app.get('/cards/:set', (req, res) => {
     }
 });
 
-app.get('/cards/:id', (req, res) => {
+app.get('/card/:id', (req, res) => {
     try {
         let requestedCardId = req.params.id;
         let requestedCard = retrieveCardForId(requestedCardId);
@@ -157,7 +157,7 @@ app.get('/cards/:id', (req, res) => {
     }
 });
 
-app.post('/cards', (req, res) => {
+app.post('/card', (req, res) => {
     try {
         if (req.query.id === undefined) {
             res.status(400)
@@ -183,7 +183,7 @@ app.post('/cards', (req, res) => {
         res.type('txt').send("Server error occurs during the processing of the request")
     }
 });
-app.put('/cards/:id', (req, res) => {
+app.put('/card/:id', (req, res) => {
     try {
         let requestedCardId = req.params.id;
         let requestedCard = retrieveCardForId(requestedCardId);
@@ -204,7 +204,7 @@ app.put('/cards/:id', (req, res) => {
     }
 });
 
-app.delete('/cards', (req, res) => {
+app.delete('/card', (req, res) => {
     try {
         if (req.query.id === undefined) {
             res.send("The param id is missing");
