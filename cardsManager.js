@@ -88,10 +88,11 @@ function getCardHtml(card) {
 
 function getCardsHtmlTableHeaders(sortedCards) {
     let tableHtml = "<div class=\"table-responsive-md\">" +
-        "<table id='cardsTable' class=\"display table table-striped table-hover align-middle\"  data-order='[[ 1, \"asc\" ]]'><thead class=\"table-dark\"><tr><th>ID</th><th>Name</th><th>Number owned</th>" +
-        "<th>Mana cost</th><th>Color identity</th><th>CMC</th><th>Layout</th><th>IMG</th></tr></thead><tbody class=\"table-group-divider\">";
+        "<table id='cardsTable' class=\"display table table-striped table-hover align-middle\"  data-order='[[ 1, \"asc\" ]]'><thead class=\"table-dark\"><tr><th>IMG</th><th>ID</th><th>Name</th>" +
+        "<th>Number owned</th><th>Mana cost</th><th>Color identity</th><th>CMC</th><th>Layout</th></tr></thead><tbody class=\"table-group-divider\">";
     for (let i = 0; i < sortedCards.length; i++) {
         let cardHtmlRow = "<tr>";
+        cardHtmlRow += "<td>" + getCardImgHtml(sortedCards[i]) + "</td>";
         cardHtmlRow += "<td>" + dashIfValueNotDefined(sortedCards[i].id) + "</td>";
         cardHtmlRow += "<td>" + dashIfValueNotDefined(sortedCards[i].name) + "</td>";
         cardHtmlRow += "<td>" + dashIfValueNotDefined(sortedCards[i].numberOwned) + "</td>";
@@ -99,7 +100,6 @@ function getCardsHtmlTableHeaders(sortedCards) {
         cardHtmlRow += "<td>" + dashIfValueNotDefined(sortedCards[i].colorIdentity) + "</td>";
         cardHtmlRow += "<td>" + dashIfValueNotDefined(sortedCards[i].cmc) + "</td>";
         cardHtmlRow += "<td>" + dashIfValueNotDefined(sortedCards[i].layout) + "</td>";
-        cardHtmlRow += "<td>" + getCardImgHtml(sortedCards[i]) + "</td>";
         cardHtmlRow += "</tr>";
         tableHtml += cardHtmlRow;
     }
@@ -115,7 +115,7 @@ app.get('/cards', (req, res) => {
     try {
 
         let html = htmlHeader + "Cards list : <br/>";
-        let sortedCards = cards.sort((a, b) => compareCardByName(a,b));
+        let sortedCards = cards.sort((a, b) => compareCardByName(a, b));
         html += getCardsHtmlTableHeaders(sortedCards);
         html += "<script>$(document).ready( function () {\n" +
             "    $('#cardsTable').DataTable();\n" +
