@@ -88,7 +88,7 @@ function getCardHtml(card) {
 
 function getCardsHtmlTableHeaders(sortedCards) {
     let tableHtml = "<div class=\"table-responsive-md\">" +
-        "<table id='cardsTable' class=\"display table table-striped table-hover align-middle\"  data-order='[[ 1, \"asc\" ]]'><thead class=\"table-dark\"><tr><th>IMG</th><th>ID</th><th>Name</th>" +
+        "<table id='cardsTable' class=\"display table table-striped table-hover align-middle\"'><thead class=\"table-dark\"><tr><th>IMG</th><th>ID</th><th>Name</th>" +
         "<th>Number owned</th><th>Mana cost</th><th>Color identity</th><th>CMC</th><th>Layout</th></tr></thead><tbody class=\"table-group-divider\">";
     for (let i = 0; i < sortedCards.length; i++) {
         let cardHtmlRow = "<tr>";
