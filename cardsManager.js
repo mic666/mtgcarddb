@@ -115,7 +115,7 @@ app.get('/cards', (req, res) => {
     try {
 
         let html = htmlHeader + "Cards list : <br/>";
-        let sortedCards = cards.sort((a, b) => compareCardByName(a, b));
+        let sortedCards = cards.sort((a, b) => compareCardById(a, b));
         html += getCardsHtmlTableHeaders(sortedCards);
         html += "<script>$(document).ready( function () {\n" +
             "    $('#cardsTable').DataTable();\n" +
@@ -151,7 +151,7 @@ app.get('/cards/:set', (req, res) => {
         }
         let html = htmlHeader + "Cards list : <br/>";
         let filteredCards = cards.filter(card => card.id.includes(req.params.set))
-        let sortedCards = filteredCards.sort((a, b) => compareCardByName(a, b));
+        let sortedCards = filteredCards.sort((a, b) => compareCardById(a, b));
         html += getCardsHtmlTableHeaders(sortedCards);
         html += "<script>$(document).ready( function () {\n" +
             "    $('#cardsTable').DataTable();\n" +
