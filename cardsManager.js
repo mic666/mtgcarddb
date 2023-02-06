@@ -109,20 +109,49 @@ function getCardsHtmlTableHeaders(sortedCards) {
 
 }
 
+function getCardsText(sortedCards){
+    let cardsText ="";
+    for (let i = 0; i < sortedCards.length; i++) {
+        cardsText+= sortedCards[i].toString();
+        cardsText+=" \\n ";
+    }
+    return cardsText
+}
+
+function getCardsJson(sortedCards){
+    let cardsJson ="";
+    for (let i = 0; i < sortedCards.length; i++) {
+        cardsText+= sortedCards[i].toString();
+        cardsText+=" \\n ";
+    }
+    return cardsText
+}
+
 function dashIfValueNotDefined(value) {
     return value === undefined || value === null || value === "" ? "-" : value;
 }
 
 app.get('/cards', (req, res) => {
     try {
-
-        let html = htmlHeader + "Cards list : <br/>";
         let sortedCards = cards.sort((a, b) => compareCardById(a, b));
+        if (req.query.format === undefined || req.query.format === "html") {
+        let html = htmlHeader + "Cards list : <br/>";
         html += getCardsHtmlTableHeaders(sortedCards);
-        html += "<script>$(document).ready( function () {\n" +
-            "    $('#cardsTable').DataTable();\n" +
+        html += "<script>$(document).ready( function () {" +
+            "    $('#cardsTable').DataTable();" +
             "} );</script></body>"
         res.send(html)
+        }else if(req.query.format === "json"){
+            res.type('json').send(JSON.stringify(sortedCards))
+            
+        }else if (req.query.format === "text"){
+                res.type('txt').send(getCardsText(sortedCards))
+        }
+        else{
+            res.status(400)
+            res.type('txt').send("format param is incorrect");
+            return;
+        }
     } catch (e) {
         res.status(500)
         res.type('txt').send("Server error occurs during the processing of the request")
@@ -131,7 +160,6 @@ app.get('/cards', (req, res) => {
 
 app.get('/sets', (req, res) => {
     try {
-
         let html = htmlHeader + "List of Mtg set with owned cards : <br/>";
         let mtgSets = getMtgSets();
         mtgSets.forEach(set => html += " - " + set + "<br/>")
