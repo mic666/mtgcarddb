@@ -1,9 +1,11 @@
 import _ from "lodash";
 import express from "express";
+import cors from "cors";
 import MtgCard, { compareCardById, compareCardByName } from "./card/MtgCard.js";
 import * as mtgCardDB from "./card/mtgCardDB.js";
 
 const app = express();
+app.use(cors())
 let cards = mtgCardDB.loadAllCards();
 let scryfallURL = 'https://scryfall.com/card/';
 let htmlHeader = "<!DOCTYPE html>\n" +
