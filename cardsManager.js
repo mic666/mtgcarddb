@@ -227,7 +227,7 @@ app.post('/card', (req, res) => {
             let cardToAdd = new MtgCard(req.query.id, req.query.name, req.query.numberOwned, req.query.imgUrl,
                 req.query.manaCost, req.query.cmc, req.query.colorIdentity, req.query.layout);
             addCard(cardToAdd);
-            res.type('txt').send("card added with success : " + cardToAdd);
+            res.type('txt').send("card added with success : " + cardToAdd.name);
         } else {
             res.status(400)
             res.type('txt').send("Cannot add the card it's already present please use the put instead of post")
@@ -248,7 +248,7 @@ app.put('/card/:id', (req, res) => {
                 return;
             }
             updateCard(requestedCardId, req.query.numberOwned);
-            res.type('txt').send("Cartes modifiée avec succès : <br/>" + requestedCard);
+            res.type('txt').send("Cartes modifiée avec succès : " + requestedCard.name);
         } else {
             res.status(404)
             res.type('txt').send("No card found for this id :" + requestedCardId);
