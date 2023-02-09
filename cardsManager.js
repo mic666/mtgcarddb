@@ -109,20 +109,20 @@ function getCardsHtmlTableHeaders(sortedCards) {
 
 }
 
-function getCardsText(sortedCards){
-    let cardsText ="";
+function getCardsText(sortedCards) {
+    let cardsText = "";
     for (let i = 0; i < sortedCards.length; i++) {
-        cardsText+= sortedCards[i].toString();
-        cardsText+=" \\n ";
+        cardsText += sortedCards[i].toString();
+        cardsText += " \\n ";
     }
     return cardsText
 }
 
-function getCardsJson(sortedCards){
-    let cardsJson ="";
+function getCardsJson(sortedCards) {
+    let cardsJson = "";
     for (let i = 0; i < sortedCards.length; i++) {
-        cardsText+= sortedCards[i].toString();
-        cardsText+=" \\n ";
+        cardsText += sortedCards[i].toString();
+        cardsText += " \\n ";
     }
     return cardsText
 }
@@ -135,19 +135,19 @@ app.get('/cards', (req, res) => {
     try {
         let sortedCards = cards.sort((a, b) => compareCardById(a, b));
         if (req.query.format === undefined || req.query.format === "html") {
-        let html = htmlHeader + "Cards list : <br/>";
-        html += getCardsHtmlTableHeaders(sortedCards);
-        html += "<script>$(document).ready( function () {" +
-            "    $('#cardsTable').DataTable();" +
-            "} );</script></body>"
-        res.send(html)
-        }else if(req.query.format === "json"){
+            let html = htmlHeader + "Cards list : <br/>";
+            html += getCardsHtmlTableHeaders(sortedCards);
+            html += "<script>$(document).ready( function () {" +
+                "    $('#cardsTable').DataTable();" +
+                "} );</script></body>"
+            res.type('html').send(html)
+        } else if (req.query.format === "json") {
             res.type('json').send(JSON.stringify(sortedCards))
-            
-        }else if (req.query.format === "text"){
-                res.type('txt').send(getCardsText(sortedCards))
+
+        } else if (req.query.format === "text") {
+            res.type('txt').send(getCardsText(sortedCards))
         }
-        else{
+        else {
             res.status(400)
             res.type('txt').send("format param is incorrect");
             return;
@@ -186,7 +186,7 @@ app.get('/cards/:set', (req, res) => {
         html += "<script>$(document).ready( function () {\n" +
             "    $('#cardsTable').DataTable();\n" +
             "} );</script></body>"
-        res.send(html)
+        res.type('html').send(html)
     } catch (e) {
         res.status(500)
         res.type('txt').send("Server error occurs during the processing of the request")
@@ -200,7 +200,7 @@ app.get('/card/:id', (req, res) => {
         if (requestedCard !== null) {
             let title = "Card info : <br/>";
             let cardHTML = getCardHtml(requestedCard);
-            res.send(title + cardHTML)
+            res.type('txt').send(title + cardHTML)
         } else {
             res.status(404)
             res.type('txt').send("No card found for this id :" + requestedCardId);
@@ -227,7 +227,7 @@ app.post('/card', (req, res) => {
             let cardToAdd = new MtgCard(req.query.id, req.query.name, req.query.numberOwned, req.query.imgUrl,
                 req.query.manaCost, req.query.cmc, req.query.colorIdentity, req.query.layout);
             addCard(cardToAdd);
-            res.send("card added with success : " + cardToAdd);
+            res.type('txt').send("card added with success : " + cardToAdd);
         } else {
             res.status(400)
             res.type('txt').send("Cannot add the card it's already present please use the put instead of post")
@@ -248,7 +248,7 @@ app.put('/card/:id', (req, res) => {
                 return;
             }
             updateCard(requestedCardId, req.query.numberOwned);
-            res.send("Cartes modifiée avec succès : <br/>" + requestedCard);
+            res.type('txt').send("Cartes modifiée avec succès : <br/>" + requestedCard);
         } else {
             res.status(404)
             res.type('txt').send("No card found for this id :" + requestedCardId);
@@ -262,7 +262,8 @@ app.put('/card/:id', (req, res) => {
 app.delete('/card', (req, res) => {
     try {
         if (req.query.id === undefined) {
-            res.send("The param id is missing");
+            res.status(400)
+            res.type('txt').send("The param id is missing");
             return;
         }
         if (retrieveCardForId(req.query.id) !== null) {
@@ -271,7 +272,7 @@ app.delete('/card', (req, res) => {
             });
             if (deletedCards.length > 0) {
                 mtgCardDB.deleteCard(req.query.id);
-                res.send("Successfully deleted the card :" + req.query.id);
+                res.type('txt').send("Successfully deleted the card :" + req.query.id);
             } else {
                 res.status(400)
                 res.type('txt').send("Card was found but not deleted:" + req.query.id);
