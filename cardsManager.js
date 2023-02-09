@@ -243,7 +243,8 @@ app.put('/card/:id', (req, res) => {
         let requestedCard = retrieveCardForId(requestedCardId);
         if (requestedCard !== null) {
             if (req.query.numberOwned === undefined) {
-                res.send("Param numberOwned is missing");
+                res.status(400)
+                res.type('txt').send("Param numberOwned is missing");
                 return;
             }
             updateCard(requestedCardId, req.query.numberOwned);
