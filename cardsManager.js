@@ -212,6 +212,7 @@ app.get('/card/:id', (req, res) => {
 });
 
 app.post('/card', (req, res) => {
+    let regExpFoId = new RegExp('^[0-9]{1,}-.{3}');
     try {
         if (req.query.id === undefined) {
             res.status(400)
@@ -222,6 +223,11 @@ app.post('/card', (req, res) => {
             res.status(400)
             res.type('txt').send("Param numberOwned is missing");
             return;
+        }
+        if(!regExpFoId.test(req.query.id)){
+            res.status(400)
+            res.type('txt').send("Param id is incorrect must match this regexp /^[0-9]{1,}-.{3}");
+            return; 
         }
         if (retrieveCardForId(req.query.id) === null) {
             let cardToAdd = new MtgCard(req.query.id, req.query.name, req.query.numberOwned, req.query.imgUrl,
