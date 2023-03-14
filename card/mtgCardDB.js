@@ -65,7 +65,7 @@ export function deleteCard(id) {
 export function updateCard(id, numberOwned) {
     let mtgCardDb = initDB();
     let cards = [];
-    mtgCardDb.run('UPDATE mtgCards SET numberOwned=?,imgURL=? WHERE ID is ?', numberOwned, id);
+    mtgCardDb.run('UPDATE mtgCards SET numberOwned=? WHERE ID is ?', numberOwned, id);
 
     closeDB(mtgCardDb);
     return cards;
