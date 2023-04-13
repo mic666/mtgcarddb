@@ -217,7 +217,7 @@ app.get('/card/:id', (req, res) => {
     }
 });
 
-app.get('/cards/exchange', (req, res) => {
+app.get('/exchange', (req, res) => {
     try {
         let sortedCards = cards.filter(card =>parseInt(card.numberOwned)>4).sort((a, b) => compareCardById(a, b));
         if (req.query.format === undefined || req.query.format === "html") {
