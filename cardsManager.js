@@ -1,7 +1,7 @@
 import _ from "lodash";
 import express from "express";
 import cors from "cors";
-import MtgCard, { compareCardById, compareCardByName } from "./card/MtgCard.js";
+import MtgCard, { compareCardById } from "./card/MtgCard.js";
 import * as mtgCardDB from "./card/mtgCardDB.js";
 
 const app = express();
@@ -36,9 +36,9 @@ let htmlHeader = "<!DOCTYPE html>\n" +
 
 function retrieveCardForId(requestedCardId) {
     let requestedCard = null;
-    for (let i = 0; i < cards.length; i++) {
-        if (cards[i].id === requestedCardId) {
-            requestedCard = cards[i];
+    for (const element of cards) {
+        if (element.id === requestedCardId) {
+            requestedCard = element;
             break;
         }
     }
@@ -52,9 +52,9 @@ function addCard(cardToAdd) {
 
 function updateCard(requestedCardId, numberOwned) {
     let requestedCard = null;
-    for (let i = 0; i < cards.length; i++) {
-        if (cards[i].id === requestedCardId) {
-            cards[i].numberOwned = numberOwned;
+    for (const element of cards) {
+        if (element.id === requestedCardId) {
+            element.numberOwned = numberOwned;
             mtgCardDB.updateCard(requestedCardId, numberOwned);
             break;
         }
@@ -64,8 +64,8 @@ function updateCard(requestedCardId, numberOwned) {
 
 function getMtgSets() {
     let mtgSet = new Set()
-    for (let i = 0; i < cards.length; i++) {
-        let cardId = cards[i].id;
+    for (const element of cards) {
+        let cardId = element.id;
         mtgSet.add(cardId.split("-")[1]);
     }
     return mtgSet;
@@ -92,16 +92,16 @@ function getCardsHtmlTableHeaders(sortedCards) {
     let tableHtml = "<div class=\"table-responsive-md\">" +
         "<table id='cardsTable' class=\"display table table-striped table-hover align-middle\"'><thead class=\"table-dark\"><tr><th>IMG</th><th>ID</th><th>Name</th>" +
         "<th>Number owned</th><th>Mana cost</th><th>Color identity</th><th>CMC</th><th>Layout</th></tr></thead><tbody class=\"table-group-divider\">";
-    for (let i = 0; i < sortedCards.length; i++) {
+    for (const element of sortedCards) {
         let cardHtmlRow = "<tr>";
-        cardHtmlRow += "<td>" + getCardImgHtml(sortedCards[i]) + "</td>";
-        cardHtmlRow += "<td>" + dashIfValueNotDefined(sortedCards[i].id) + "</td>";
-        cardHtmlRow += "<td>" + dashIfValueNotDefined(sortedCards[i].name) + "</td>";
-        cardHtmlRow += "<td>" + dashIfValueNotDefined(sortedCards[i].numberOwned) + "</td>";
-        cardHtmlRow += "<td>" + dashIfValueNotDefined(sortedCards[i].manaCost) + "</td>";
-        cardHtmlRow += "<td>" + dashIfValueNotDefined(sortedCards[i].colorIdentity) + "</td>";
-        cardHtmlRow += "<td>" + dashIfValueNotDefined(sortedCards[i].cmc) + "</td>";
-        cardHtmlRow += "<td>" + dashIfValueNotDefined(sortedCards[i].layout) + "</td>";
+        cardHtmlRow += "<td>" + getCardImgHtml(element) + "</td>";
+        cardHtmlRow += "<td>" + dashIfValueNotDefined(element.id) + "</td>";
+        cardHtmlRow += "<td>" + dashIfValueNotDefined(element.name) + "</td>";
+        cardHtmlRow += "<td>" + dashIfValueNotDefined(element.numberOwned) + "</td>";
+        cardHtmlRow += "<td>" + dashIfValueNotDefined(element.manaCost) + "</td>";
+        cardHtmlRow += "<td>" + dashIfValueNotDefined(element.colorIdentity) + "</td>";
+        cardHtmlRow += "<td>" + dashIfValueNotDefined(element.cmc) + "</td>";
+        cardHtmlRow += "<td>" + dashIfValueNotDefined(element.layout) + "</td>";
         cardHtmlRow += "</tr>";
         tableHtml += cardHtmlRow;
     }
@@ -111,8 +111,8 @@ function getCardsHtmlTableHeaders(sortedCards) {
 
 function getCardsText(sortedCards) {
     let cardsText = "";
-    for (let i = 0; i < sortedCards.length; i++) {
-        cardsText += sortedCards[i].toString();
+    for (const element of sortedCards) {
+        cardsText += element.toString();
         cardsText += " \\n ";
     }
     return cardsText
@@ -120,11 +120,11 @@ function getCardsText(sortedCards) {
 
 function getCardsJson(sortedCards) {
     let cardsJson = "";
-    for (let i = 0; i < sortedCards.length; i++) {
-        cardsText += sortedCards[i].toString();
-        cardsText += " \\n ";
+    for (const element of sortedCards) {
+        cardsJson += element.toString();
+        cardsJson += " \\n ";
     }
-    return cardsText
+    return cardsJson
 }
 
 function dashIfValueNotDefined(value) {
@@ -219,7 +219,7 @@ app.get('/card/:id', (req, res) => {
 
 app.get('/cards/exchange', (req, res) => {
     try {
-        let sortedCards = cards.filter(card =>card.numberOwned>4).sort((a, b) => compareCardById(a, b));
+        let sortedCards = cards.filter(card =>parseInt(card.numberOwned)>4).sort((a, b) => compareCardById(a, b));
         if (req.query.format === undefined || req.query.format === "html") {
             let html = htmlHeader + "Cards available for exchange : <br/>";
             html += getCardsHtmlTableHeaders(sortedCards);
