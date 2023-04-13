@@ -179,14 +179,20 @@ app.get('/cards/:set', (req, res) => {
             res.type('txt').send("Param set is missing");
             return;
         }
-        let html = htmlHeader + "Cards list : <br/>";
-        let filteredCards = cards.filter(card => card.id.includes(req.params.set))
-        let sortedCards = filteredCards.sort((a, b) => compareCardById(a, b));
-        html += getCardsHtmlTableHeaders(sortedCards);
-        html += "<script>$(document).ready( function () {\n" +
-            "    $('#cardsTable').DataTable();\n" +
-            "} );</script></body>"
-        res.type('html').send(html)
+        let sortedCards = cards.filter(card => card.id.includes(req.params.set)).sort((a, b) => compareCardById(a, b));
+        if (req.query.format === undefined || req.query.format === "html") {
+            let html = htmlHeader + "Cards available for "+ req.params.set +" : <br/>";
+            html += getCardsHtmlTableHeaders(sortedCards);
+            html += "<script>$(document).ready( function () {" +
+                "    $('#cardsTable').DataTable();" +
+                "} );</script></body>"
+            res.type('html').send(html)
+        } else if (req.query.format === "json") {
+            res.type('json').send(JSON.stringify(sortedCards))
+
+        } else if (req.query.format === "text") {
+            res.type('txt').send(getCardsText(sortedCards))
+        }
     } catch (e) {
         res.status(500)
         res.type('txt').send("Server error occurs during the processing of the request")
@@ -204,6 +210,28 @@ app.get('/card/:id', (req, res) => {
         } else {
             res.status(404)
             res.type('txt').send("No card found for this id :" + requestedCardId);
+        }
+    } catch (e) {
+        res.status(500)
+        res.type('txt').send("Server error occurs during the processing of the request")
+    }
+});
+
+app.get('/cards/exchange', (req, res) => {
+    try {
+        let sortedCards = cards.filter(card =>card.numberOwned>4).sort((a, b) => compareCardById(a, b));
+        if (req.query.format === undefined || req.query.format === "html") {
+            let html = htmlHeader + "Cards available for exchange : <br/>";
+            html += getCardsHtmlTableHeaders(sortedCards);
+            html += "<script>$(document).ready( function () {" +
+                "    $('#cardsTable').DataTable();" +
+                "} );</script></body>"
+            res.type('html').send(html)
+        } else if (req.query.format === "json") {
+            res.type('json').send(JSON.stringify(sortedCards))
+
+        } else if (req.query.format === "text") {
+            res.type('txt').send(getCardsText(sortedCards))
         }
     } catch (e) {
         res.status(500)
