@@ -88,7 +88,7 @@ function getCardHtml(card) {
     return cardHTML;
 }
 
-function getCardsHtmlTableHeaders(sortedCards) {
+function getCardsHtmlTableHeaders(sortedCards, isExchange) {
     let tableHtml = "<div class=\"table-responsive-md\">" +
         "<table id='cardsTable' class=\"display table table-striped table-hover align-middle\"'><thead class=\"table-dark\"><tr><th>IMG</th><th>ID</th><th>Name</th>" +
         "<th>Number owned</th><th>Mana cost</th><th>Color identity</th><th>CMC</th><th>Layout</th></tr></thead><tbody class=\"table-group-divider\">";
@@ -97,7 +97,7 @@ function getCardsHtmlTableHeaders(sortedCards) {
         cardHtmlRow += "<td>" + getCardImgHtml(element) + "</td>";
         cardHtmlRow += "<td>" + dashIfValueNotDefined(element.id) + "</td>";
         cardHtmlRow += "<td>" + dashIfValueNotDefined(element.name) + "</td>";
-        cardHtmlRow += "<td>" + dashIfValueNotDefined(element.numberOwned) + "</td>";
+        cardHtmlRow += "<td>" + getNumberOwnedOrDash(element.numberOwned,isExchange) + "</td>";
         cardHtmlRow += "<td>" + dashIfValueNotDefined(element.manaCost) + "</td>";
         cardHtmlRow += "<td>" + dashIfValueNotDefined(element.colorIdentity) + "</td>";
         cardHtmlRow += "<td>" + dashIfValueNotDefined(element.cmc) + "</td>";
@@ -131,12 +131,20 @@ function dashIfValueNotDefined(value) {
     return value === undefined || value === null || value === "" ? "-" : value;
 }
 
+function getNumberOwnedOrDash(value, isExchange) {
+    if (value === undefined || value === null || value === "") {
+        return "-"
+    } else {
+        return isExchange ? value - 4 : value
+    }
+}
+
 app.get('/cards', (req, res) => {
     try {
         let sortedCards = cards.sort((a, b) => compareCardById(a, b));
         if (req.query.format === undefined || req.query.format === "html") {
             let html = htmlHeader + "Cards list : <br/>";
-            html += getCardsHtmlTableHeaders(sortedCards);
+            html += getCardsHtmlTableHeaders(sortedCards,fale);
             html += "<script>$(document).ready( function () {" +
                 "    $('#cardsTable').DataTable();" +
                 "} );</script></body>"
@@ -181,8 +189,8 @@ app.get('/cards/:set', (req, res) => {
         }
         let sortedCards = cards.filter(card => card.id.includes(req.params.set)).sort((a, b) => compareCardById(a, b));
         if (req.query.format === undefined || req.query.format === "html") {
-            let html = htmlHeader + "Cards available for "+ req.params.set +" : <br/>";
-            html += getCardsHtmlTableHeaders(sortedCards);
+            let html = htmlHeader + "Cards available for " + req.params.set + " : <br/>";
+            html += getCardsHtmlTableHeaders(sortedCards,false);
             html += "<script>$(document).ready( function () {" +
                 "    $('#cardsTable').DataTable();" +
                 "} );</script></body>"
@@ -219,10 +227,10 @@ app.get('/card/:id', (req, res) => {
 
 app.get('/exchange', (req, res) => {
     try {
-        let sortedCards = cards.filter(card =>parseInt(card.numberOwned)>4).sort((a, b) => compareCardById(a, b));
+        let sortedCards = cards.filter(card => parseInt(card.numberOwned) > 4).sort((a, b) => compareCardById(a, b));
         if (req.query.format === undefined || req.query.format === "html") {
             let html = htmlHeader + "Cards available for exchange : <br/>";
-            html += getCardsHtmlTableHeaders(sortedCards);
+            html += getCardsHtmlTableHeaders(sortedCards,true);
             html += "<script>$(document).ready( function () {" +
                 "    $('#cardsTable').DataTable();" +
                 "} );</script></body>"
@@ -252,10 +260,10 @@ app.post('/card', (req, res) => {
             res.type('txt').send("Param numberOwned is missing");
             return;
         }
-        if(!regExpFoId.test(req.query.id)){
+        if (!regExpFoId.test(req.query.id)) {
             res.status(400)
             res.type('txt').send("Param id is incorrect must match this regexp /^[0-9]{1,}-.{3}");
-            return; 
+            return;
         }
         if (retrieveCardForId(req.query.id) === null) {
             let cardToAdd = new MtgCard(req.query.id, req.query.name, req.query.numberOwned, req.query.imgUrl,
