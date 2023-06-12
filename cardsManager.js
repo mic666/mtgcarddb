@@ -1,5 +1,7 @@
 import _ from "lodash";
 import express from "express";
+import https from "https";
+import fs from "fs";
 import cors from "cors";
 import MtgCard, { compareCardById } from "./card/MtgCard.js";
 import * as mtgCardDB from "./card/mtgCardDB.js";
@@ -97,7 +99,7 @@ function getCardsHtmlTableHeaders(sortedCards, isExchange) {
         cardHtmlRow += "<td>" + getCardImgHtml(element) + "</td>";
         cardHtmlRow += "<td>" + dashIfValueNotDefined(element.id) + "</td>";
         cardHtmlRow += "<td>" + dashIfValueNotDefined(element.name) + "</td>";
-        cardHtmlRow += "<td>" + getNumberOwnedOrDash(element.numberOwned,isExchange) + "</td>";
+        cardHtmlRow += "<td>" + getNumberOwnedOrDash(element.numberOwned, isExchange) + "</td>";
         cardHtmlRow += "<td>" + dashIfValueNotDefined(element.manaCost) + "</td>";
         cardHtmlRow += "<td>" + dashIfValueNotDefined(element.colorIdentity) + "</td>";
         cardHtmlRow += "<td>" + dashIfValueNotDefined(element.cmc) + "</td>";
@@ -144,7 +146,7 @@ app.get('/cards', (req, res) => {
         let sortedCards = cards.sort((a, b) => compareCardById(a, b));
         if (req.query.format === undefined || req.query.format === "html") {
             let html = htmlHeader + "Cards list : <br/>";
-            html += getCardsHtmlTableHeaders(sortedCards,fale);
+            html += getCardsHtmlTableHeaders(sortedCards, fale);
             html += "<script>$(document).ready( function () {" +
                 "    $('#cardsTable').DataTable();" +
                 "} );</script></body>"
@@ -190,7 +192,7 @@ app.get('/cards/:set', (req, res) => {
         let sortedCards = cards.filter(card => card.id.includes(req.params.set)).sort((a, b) => compareCardById(a, b));
         if (req.query.format === undefined || req.query.format === "html") {
             let html = htmlHeader + "Cards available for " + req.params.set + " : <br/>";
-            html += getCardsHtmlTableHeaders(sortedCards,false);
+            html += getCardsHtmlTableHeaders(sortedCards, false);
             html += "<script>$(document).ready( function () {" +
                 "    $('#cardsTable').DataTable();" +
                 "} );</script></body>"
@@ -227,10 +229,37 @@ app.get('/card/:id', (req, res) => {
 
 app.get('/exchange', (req, res) => {
     try {
-        let sortedCards = cards.filter(card => parseInt(card.numberOwned) > 4).sort((a, b) => compareCardById(a, b));
+        let sortedCards = cards
+            .filter(card => parseInt(card.numberOwned) > 4)
+            .sort((a, b) => compareCardById(a, b));
         if (req.query.format === undefined || req.query.format === "html") {
             let html = htmlHeader + "Cards available for exchange : <br/>";
-            html += getCardsHtmlTableHeaders(sortedCards,true);
+            html += getCardsHtmlTableHeaders(sortedCards, true);
+            html += "<script>$(document).ready( function () {" +
+                "    $('#cardsTable').DataTable();" +
+                "} );</script></body>"
+            res.type('html').send(html)
+        } else if (req.query.format === "json") {
+            res.type('json').send(JSON.stringify(sortedCards))
+
+        } else if (req.query.format === "text") {
+            res.type('txt').send(getCardsText(sortedCards))
+        }
+    } catch (e) {
+        res.status(500)
+        res.type('txt').send("Server error occurs during the processing of the request")
+    }
+});
+
+app.get('/exchange/V2', (req, res) => {
+    try {
+        let sortedCards = cards
+            .filter(card => parseInt(card.numberOwned) > 4)
+            .sort((a, b) => compareCardById(a, b));
+            
+        if (req.query.format === undefined || req.query.format === "html") {
+            let html = htmlHeader + "Cards available for exchange : <br/>";
+            html += getCardsHtmlTableHeaders(sortedCards, true);
             html += "<script>$(document).ready( function () {" +
                 "    $('#cardsTable').DataTable();" +
                 "} );</script></body>"
@@ -329,4 +358,7 @@ app.delete('/card', (req, res) => {
     }
 });
 
-app.listen(8080, () => console.log("Server started"));
+https.createServer({
+    key: fs.readFileSync("privkey.pem"),
+    cert: fs.readFileSync("cert.pem"),
+},app).listen(8081,()=>{console.log("Mtg card server is running")})

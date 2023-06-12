@@ -7,7 +7,7 @@
   "main": "cardsManager.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/monatheoctocat/my_package.git"
+    "url": "https://github.com/mic666/mtgcarddb.git"
   },
   "dependencies": {
     "cors": "^2.8.5",
