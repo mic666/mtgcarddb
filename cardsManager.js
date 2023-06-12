@@ -361,4 +361,4 @@ app.delete('/card', (req, res) => {
 https.createServer({
     key: fs.readFileSync("privkey.pem"),
     cert: fs.readFileSync("cert.pem"),
-},app).listen(8081,()=>{console.log("Mtg card server is running")})
+},app).listen(8080,()=>{console.log("Mtg card server is running")})
