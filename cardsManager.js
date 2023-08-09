@@ -57,7 +57,19 @@ function updateCard(requestedCardId, numberOwned) {
     for (const element of cards) {
         if (element.id === requestedCardId) {
             element.numberOwned = numberOwned;
-            mtgCardDB.updateCard(requestedCardId, numberOwned);
+            mtgCardDB.updateNumberOwnedCard(requestedCardId, numberOwned);
+            break;
+        }
+    }
+    return requestedCard;
+}
+
+function updateCardPrice(requestedCardId, price) {
+    let requestedCard = null;
+    for (const element of cards) {
+        if (element.id === requestedCardId) {
+            element.price = price;
+            mtgCardDB.updateCardPrice(requestedCardId, price);
             break;
         }
     }
@@ -93,17 +105,18 @@ function getCardHtml(card) {
 function getCardsHtmlTableHeaders(sortedCards, isExchange) {
     let tableHtml = "<div class=\"table-responsive-md\">" +
         "<table id='cardsTable' class=\"display table table-striped table-hover align-middle\"'><thead class=\"table-dark\"><tr><th>IMG</th><th>ID</th><th>Name</th>" +
-        "<th>Number owned</th><th>Mana cost</th><th>Color identity</th><th>CMC</th><th>Layout</th></tr></thead><tbody class=\"table-group-divider\">";
-    for (const element of sortedCards) {
+        "<th>Number owned</th><th>Mana cost</th><th>Color identity</th><th>CMC</th><th>Layout</th><th>Price</th></tr></thead><tbody class=\"table-group-divider\">";
+    for (const cardRow of sortedCards) {
         let cardHtmlRow = "<tr>";
-        cardHtmlRow += "<td>" + getCardImgHtml(element) + "</td>";
-        cardHtmlRow += "<td>" + dashIfValueNotDefined(element.id) + "</td>";
-        cardHtmlRow += "<td>" + dashIfValueNotDefined(element.name) + "</td>";
-        cardHtmlRow += "<td>" + getNumberOwnedOrDash(element.numberOwned, isExchange) + "</td>";
-        cardHtmlRow += "<td>" + dashIfValueNotDefined(element.manaCost) + "</td>";
-        cardHtmlRow += "<td>" + dashIfValueNotDefined(element.colorIdentity) + "</td>";
-        cardHtmlRow += "<td>" + dashIfValueNotDefined(element.cmc) + "</td>";
-        cardHtmlRow += "<td>" + dashIfValueNotDefined(element.layout) + "</td>";
+        cardHtmlRow += "<td>" + getCardImgHtml(cardRow) + "</td>";
+        cardHtmlRow += "<td>" + dashIfValueNotDefined(cardRow.id) + "</td>";
+        cardHtmlRow += "<td>" + dashIfValueNotDefined(cardRow.name) + "</td>";
+        cardHtmlRow += "<td>" + getNumberOwnedOrDash(cardRow.numberOwned, isExchange) + "</td>";
+        cardHtmlRow += "<td>" + dashIfValueNotDefined(cardRow.manaCost) + "</td>";
+        cardHtmlRow += "<td>" + dashIfValueNotDefined(cardRow.colorIdentity) + "</td>";
+        cardHtmlRow += "<td>" + dashIfValueNotDefined(cardRow.cmc) + "</td>";
+        cardHtmlRow += "<td>" + dashIfValueNotDefined(cardRow.layout) + "</td>";
+        cardHtmlRow += "<td>" + dashIfValueNotDefined(cardRow.price) + "</td>";
         cardHtmlRow += "</tr>";
         tableHtml += cardHtmlRow;
     }
@@ -146,7 +159,7 @@ app.get('/cards', (req, res) => {
         let sortedCards = cards.sort((a, b) => compareCardById(a, b));
         if (req.query.format === undefined || req.query.format === "html") {
             let html = htmlHeader + "Cards list : <br/>";
-            html += getCardsHtmlTableHeaders(sortedCards, fale);
+            html += getCardsHtmlTableHeaders(sortedCards, false);
             html += "<script>$(document).ready( function () {" +
                 "    $('#cardsTable').DataTable();" +
                 "} );</script></body>"
@@ -296,7 +309,7 @@ app.post('/card', (req, res) => {
         }
         if (retrieveCardForId(req.query.id) === null) {
             let cardToAdd = new MtgCard(req.query.id, req.query.name, req.query.numberOwned, req.query.imgUrl,
-                req.query.manaCost, req.query.cmc, req.query.colorIdentity, req.query.layout);
+                req.query.manaCost, req.query.cmc, req.query.colorIdentity, req.query.layout,req.query.price);
             addCard(cardToAdd);
             res.type('txt').send("card added with success : " + cardToAdd.name);
         } else {
@@ -319,7 +332,29 @@ app.put('/card/:id', (req, res) => {
                 return;
             }
             updateCard(requestedCardId, req.query.numberOwned);
-            res.type('txt').send("Cartes modifiée avec succès : " + requestedCard.name);
+            res.type('txt').send("Card succesfully updated : " + requestedCard.name);
+        } else {
+            res.status(404)
+            res.type('txt').send("No card found for this id :" + requestedCardId);
+        }
+    } catch (e) {
+        res.status(500)
+        res.type('txt').send("Server error occurs during the processing of the request")
+    }
+});
+
+app.put('/cardPrice/:id', (req, res) => {
+    try {
+        let requestedCardId = req.params.id;
+        let requestedCard = retrieveCardForId(requestedCardId);
+        if (requestedCard !== null) {
+            if (req.query.price === undefined) {
+                res.status(400)
+                res.type('txt').send("Param price is missing");
+                return;
+            }
+            updateCardPrice(requestedCardId, req.query.price);
+            res.type('txt').send("card price updated with success : " + requestedCard.name);
         } else {
             res.status(404)
             res.type('txt').send("No card found for this id :" + requestedCardId);
@@ -358,7 +393,9 @@ app.delete('/card', (req, res) => {
     }
 });
 
-https.createServer({
+/* https.createServer({
     key: fs.readFileSync("privkey.pem"),
     cert: fs.readFileSync("cert.pem"),
-},app).listen(8080,()=>{console.log("Mtg card server is running")})
+},app).listen(8080,()=>{console.log("Mtg card server is running")}) */
+
+app.listen(8080, () => console.log("Server started"));

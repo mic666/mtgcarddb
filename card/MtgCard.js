@@ -1,5 +1,5 @@
 export default class MtgCard {
-    constructor(id, name, numberOwned, imgUrl, manaCost, cmc, colorIdentity, layout) {
+    constructor(id, name, numberOwned, imgUrl, manaCost, cmc, colorIdentity, layout,price) {
         this.id = id;
         this.name = name
         this.imgUrl = imgUrl;
@@ -8,6 +8,7 @@ export default class MtgCard {
         this.cmc = cmc;
         this.colorIdentity = colorIdentity;
         this.layout = layout;
+        this.price = price;
     }
 
     toString() {
