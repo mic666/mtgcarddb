@@ -1,5 +1,6 @@
 import _ from "lodash";
 import express from "express";
+import expressOasGenerator from "express-oas-generator";
 import https from "https";
 import fs from "fs";
 import cors from "cors";
@@ -161,11 +162,11 @@ function getNumberOwnedOrDash(value, isExchange) {
     return isExchange ? value - 4 : value;
   }
 }
-
+expressOasGenerator.handleResponses(app,{});
 app.get("/cards", (req, res) => {
   try {
     let sortedCards = cards.sort((a, b) => compareCardById(a, b));
-    if (req.query.format === undefined || req.query.format === "html") {
+    if (req.query.format === "html") {
       let html = htmlHeader + "Cards list : <br/>";
       html += getCardsHtmlTableHeaders(sortedCards, false);
       html +=
@@ -215,7 +216,7 @@ app.get("/cards/:set", (req, res) => {
     let sortedCards = cards
       .filter((card) => card.id.includes(req.params.set))
       .sort((a, b) => compareCardById(a, b));
-    if (req.query.format === undefined || req.query.format === "html") {
+    if (req.query.format === "html") {
       let html =
         htmlHeader + "Cards available for " + req.params.set + " : <br/>";
       html += getCardsHtmlTableHeaders(sortedCards, false);
@@ -262,7 +263,7 @@ app.get("/exchange", (req, res) => {
     let sortedCards = cards
       .filter((card) => parseInt(card.numberOwned) > 4)
       .sort((a, b) => compareCardById(a, b));
-    if (req.query.format === undefined || req.query.format === "html") {
+    if (req.query.format === "html") {
       let html = htmlHeader + "Cards available for exchange : <br/>";
       html += getCardsHtmlTableHeaders(sortedCards, true);
       html +=
@@ -438,7 +439,7 @@ app.delete("/card", (req, res) => {
       .send("Server error occurs during the processing of the request");
   }
 });
-
+expressOasGenerator.handleRequests();
 https
   .createServer(
     {
@@ -449,6 +450,6 @@ https
   )
   .listen(8080, () => {
     console.log("Mtg card server is running");
-  });
+  }); 
 
 //app.listen(8080, () => console.log("Server started"));
