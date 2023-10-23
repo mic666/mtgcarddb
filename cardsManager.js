@@ -218,7 +218,7 @@ app.get("/cards/:set", (req, res) => {
       .sort((a, b) => compareCardById(a, b));
     if (req.query.format === "html") {
       let html =
-        htmlHeader + "Cards available for " + req.params.set + " : <br/>";
+        htmlHeader + "Cards available for " + escape(req.params.set) + " : <br/>";
       html += getCardsHtmlTableHeaders(sortedCards, false);
       html +=
         "<script>$(document).ready( function () {" +
@@ -248,7 +248,7 @@ app.get("/card/:id", (req, res) => {
       res.type("txt").send(title + cardHTML);
     } else {
       res.status(404);
-      res.type("txt").send("No card found for this id :" + requestedCardId);
+      res.type("txt").send("No card found for this id :" + escape(requestedCardId));
     }
   } catch (e) {
     res.status(500);
@@ -344,7 +344,7 @@ app.post("/card", (req, res) => {
         req.query.price
       );
       addCard(cardToAdd);
-      res.type("txt").send("card added with success : " + cardToAdd.name);
+      res.type("txt").send("card added with success : " + escape(cardToAdd.name));
     } else {
       res.status(400);
       res
@@ -371,10 +371,10 @@ app.put("/card/:id", (req, res) => {
         return;
       }
       updateCard(requestedCardId, req.query.numberOwned);
-      res.type("txt").send("Card succesfully updated : " + requestedCard.name);
+      res.type("txt").send("Card succesfully updated : " + escape(requestedCard.name));
     } else {
       res.status(404);
-      res.type("txt").send("No card found for this id :" + requestedCardId);
+      res.type("txt").send("No card found for this id :" + escape(requestedCardId));
     }
   } catch (e) {
     res.status(500);
@@ -397,10 +397,10 @@ app.put("/cardPrice/:id", (req, res) => {
       updateCardPrice(requestedCardId, req.query.price);
       res
         .type("txt")
-        .send("card price updated with success : " + requestedCard.name);
+        .send("card price updated with success : " + escape(requestedCard.name));
     } else {
       res.status(404);
-      res.type("txt").send("No card found for this id :" + requestedCardId);
+      res.type("txt").send("No card found for this id :" + escape(requestedCardId));
     }
   } catch (e) {
     res.status(500);
@@ -423,10 +423,10 @@ app.delete("/card", (req, res) => {
       });
       if (deletedCards.length > 0) {
         mtgCardDB.deleteCard(req.query.id);
-        res.type("txt").send("Successfully deleted the card :" + req.query.id);
+        res.type("txt").send("Successfully deleted the card :" + escape(req.query.id));
       } else {
         res.status(400);
-        res.type("txt").send("Card was found but not deleted:" + req.query.id);
+        res.type("txt").send("Card was found but not deleted:" + escape(req.query.id));
       }
     } else {
       res.status(404);
@@ -444,12 +444,10 @@ https
   .createServer(
     {
       key: fs.readFileSync("privkey.pem"),
-      cert: fs.readFileSync("cert.pem"),
+      cert: fs.readFileSync("fullchain.pem"),
     },
     app
   )
   .listen(8080, () => {
     console.log("Mtg card server is running");
   }); 
-
-//app.listen(8080, () => console.log("Server started"));
