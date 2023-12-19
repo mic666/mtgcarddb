@@ -1,0 +1,4 @@
+1 : sudo certbot renew --dry-run
+2 : sudo certbot renew 
+3 : go to certif dir 
+4 : cp fullchain.pem / chain.pem / privkey.pem
