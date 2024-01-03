@@ -344,7 +344,7 @@ app.post("/card", (req, res) => {
         req.query.price
       );
       addCard(cardToAdd);
-      res.type("txt").send("card added with success : " + escape(cardToAdd.name));
+      res.type("txt").send("card added with success : " + cardToAdd.name);
     } else {
       res.status(400);
       res
@@ -371,10 +371,10 @@ app.put("/card/:id", (req, res) => {
         return;
       }
       updateCard(requestedCardId, req.query.numberOwned);
-      res.type("txt").send("Card succesfully updated : " + escape(requestedCard.name));
+      res.type("txt").send("Card succesfully updated : " + requestedCard.name);
     } else {
       res.status(404);
-      res.type("txt").send("No card found for this id :" + escape(requestedCardId));
+      res.type("txt").send("No card found for this id :" + requestedCardId);
     }
   } catch (e) {
     res.status(500);
@@ -397,10 +397,10 @@ app.put("/cardPrice/:id", (req, res) => {
       updateCardPrice(requestedCardId, req.query.price);
       res
         .type("txt")
-        .send("card price updated with success : " + escape(requestedCard.name));
+        .send("card price updated with success : " + requestedCard.name);
     } else {
       res.status(404);
-      res.type("txt").send("No card found for this id :" + escape(requestedCardId));
+      res.type("txt").send("No card found for this id :" + requestedCardId);
     }
   } catch (e) {
     res.status(500);
@@ -423,10 +423,10 @@ app.delete("/card", (req, res) => {
       });
       if (deletedCards.length > 0) {
         mtgCardDB.deleteCard(req.query.id);
-        res.type("txt").send("Successfully deleted the card :" + escape(req.query.id));
+        res.type("txt").send("Successfully deleted the card :" + req.query.id);
       } else {
         res.status(400);
-        res.type("txt").send("Card was found but not deleted:" + escape(req.query.id));
+        res.type("txt").send("Card was found but not deleted:" + req.query.id);
       }
     } else {
       res.status(404);
