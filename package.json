@@ -16,8 +16,5 @@
     "lodash": "^4.17.21",
     "mtgcarddb": "file:",
     "sqlite3": "^5.1.7"
-  },
-  "overrides": {
-    "cookie": "1.0.1"
   }
 }
